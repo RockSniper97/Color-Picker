@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Minus, Copy, Palette, Instagram, Sparkles } from 'lucide-react';
+import { Plus, Minus, Copy, Palette, Instagram, Sparkles, X, Info } from 'lucide-react';
 
 interface ColorData {
   id: string;
@@ -12,6 +12,8 @@ function App() {
   ]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
+  const [showTooltip, setShowTooltip] = useState<string | null>(null);
+  const [hasSeenTooltip, setHasSeenTooltip] = useState(false);
 
   const addColorPicker = () => {
     const newId = Date.now().toString();
@@ -30,6 +32,16 @@ function App() {
     ));
   };
 
+  const handleColorPickerClick = (id: string) => {
+    if (!hasSeenTooltip) {
+      setShowTooltip(id);
+    }
+  };
+
+  const dismissTooltip = () => {
+    setShowTooltip(null);
+    setHasSeenTooltip(true);
+  };
   const copyToClipboard = async (text: string, id?: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -182,6 +194,47 @@ function App() {
                     </div>
                   </div>
 
+                   {/* Mobile Color Picker Tooltip */}
+                   {showTooltip === colorData.id && (
+                     <div className="absolute top-0 left-0 right-0 z-50 p-4 bg-gradient-to-r from-blue-900/95 to-indigo-900/95 backdrop-blur-lg rounded-xl border border-blue-400/50 shadow-2xl shadow-blue-500/25 animate-in slide-in-from-top-2 duration-300">
+                       <div className="flex items-start justify-between mb-3">
+                         <div className="flex items-center space-x-2">
+                           <Info className="w-5 h-5 text-blue-400" />
+                           <h3 className="text-white font-semibold text-sm">Color Picker Guide</h3>
+                         </div>
+                         <button
+                           onClick={dismissTooltip}
+                           className="p-1 hover:bg-white/10 rounded-full transition-colors"
+                         >
+                           <X className="w-4 h-4 text-gray-300" />
+                         </button>
+                       </div>
+                       <div className="space-y-2 text-xs text-blue-200">
+                         <div className="flex items-center space-x-2">
+                           <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                           <span>Tap the color area to open the picker</span>
+                         </div>
+                         <div className="flex items-center space-x-2">
+                           <div className="w-2 h-2 bg-indigo-400 rounded-full"></div>
+                           <span>Drag on the color wheel to adjust hue</span>
+                         </div>
+                         <div className="flex items-center space-x-2">
+                           <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                           <span>Use sliders for fine-tuning brightness</span>
+                         </div>
+                         <div className="flex items-center space-x-2">
+                           <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
+                           <span>Enter custom HEX codes directly</span>
+                         </div>
+                       </div>
+                       <button
+                         onClick={dismissTooltip}
+                         className="w-full mt-3 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-lg text-sm font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200"
+                       >
+                         Got it!
+                       </button>
+                     </div>
+                   )}
                   {/* Copy Button */}
                   <button
                     onClick={() => copyToClipboard(colorData.color, colorData.id)}
